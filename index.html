@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Sources</title>
+</head>
+<body>
+    <h1>Data Sources</h1>
+
+    <!-- Data Sources List -->
+    <ul id="data-sources">
+        <!-- Data sources will be added here dynamically -->
+    </ul>
+
+    <!-- Locations List -->
+    <ul id="location-list" style="display: none;">
+        <!-- Locations will be added here dynamically -->
+    </ul>
+
+    <!-- Image Assets List -->
+    <ul id="image-assets-list" style="display: none;">
+        <!-- Image assets will be added here dynamically -->
+    </ul>
+
+    <!-- Asset Details -->
+    <div id="asset-details" style="display: none;">
+        <!-- Asset details will be added here dynamically -->
+    </div>
+
+    <script>
+        // Sample data for locations associated with data sources
+        const locations = {
+            "Sentinel-2A data": ["United Kingdom, Lat Lon: [50.4, -1.0]", "Location 2A", "Location 3A"],
+            "Sentinel-2B": ["Location 1B", "Location 2B"],
+            "Landsat Data": ["Location 1L", "Location 2L", "Location 3L"],
+        };
+
+        // Sample data for image assets associated with locations
+        const imageAssets = {
+            "Sentinel-2A data": {
+                "United Kingdom, Lat Lon: [50.4, -1.0]": {
+                    "B02": {
+                        overview: "https://storage.googleapis.com/sentinel-2/stac-data%5Citem-2/overview.webp",
+                        thumbnail: "https://storage.googleapis.com/sentinel-2/stac-data%5Citem-2/thumbnail.webp",
+                        tiff: "https://storage.googleapis.com/sentinel-2/stac-data%5Citem-2/asset-2.tif",
+                        metadata: "https://storage.googleapis.com/sentinel-2/stac-data%5Citem-2/metadata_B02.json"
+                    },
+                    "B03": {
+                        overview: "https://storage.googleapis.com/sentinel-2/stac-data%5Citem-3/overview.webp",
+                        thumbnail: "https://storage.googleapis.com/sentinel-2/stac-data%5Citem-3/thumbnail.webp",
+                        tiff: "https://storage.googleapis.com/sentinel-2/stac-data%5Citem-3/asset-3.tif",
+                        metadata: "https://storage.googleapis.com/sentinel-2/stac-data%5Citem-3/metadata_B03.json"
+                    },
+                    "True color": {
+                        overview: "https://storage.googleapis.com/sentinel-2/stac-data%5Citem-1/overview.webp",
+                        thumbnail: "https://storage.googleapis.com/sentinel-2/stac-data%5Citem-1/thumbnail.webp",
+                        tiff: "https://storage.googleapis.com/sentinel-2/stac-data%5Citem-1/asset-1.tif",
+                        metadata: "https://storage.googleapis.com/sentinel-2/stac-data%5Citem-1/metadata_TCI.json"
+                    }
+                },
+                // Repeat the structure for other locations and data sources
+            },
+            // Repeat for other data sources
+        };
+
+        // Function to populate the data sources list
+        function populateDataSources() {
+            const dataSourceList = document.getElementById("data-sources");
+
+            dataSources.forEach(dataSource => {
+                const listItem = document.createElement("li");
+                listItem.innerHTML = `<a href="#" onclick="showLocations('${dataSource}')">${dataSource}</a>`;
+                dataSourceList.appendChild(listItem);
+            });
+        }
+
+        // Function to show locations for a selected data source
+        function showLocations(dataSource) {
+            const locationList = document.getElementById("location-list");
+            locationList.innerHTML = ""; // Clear the previous list (if any)
+
+            const locationsForDataSource = locations[dataSource];
+
+            if (locationsForDataSource) {
+                locationsForDataSource.forEach(location => {
+                    const listItem = document.createElement("li");
+                    listItem.innerHTML = `<a href="#" onclick="showImageAssets('${dataSource}', '${location}')">${location}</a>`;
+                    locationList.appendChild(listItem);
+                });
+
+                locationList.style.display = "block"; // Show the location list
+            } else {
+                locationList.style.display = "none"; // Hide the location list if no locations found
+            }
+        }
+
+        // Function to show image assets for a selected location
+        function showImageAssets(dataSource, location) {
+            const imageAssetsList = document.getElementById("image-assets-list");
+            imageAssetsList.innerHTML = ""; // Clear the previous list (if any)
+
+            const assetsForLocation = imageAssets[dataSource] ? imageAssets[dataSource][location] : null;
+
+            if (assetsForLocation) {
+                for (const assetName in assetsForLocation) {
+                    const listItem = document.createElement("li");
+                    listItem.innerHTML = `<a href="#" onclick="showAssetDetails('${dataSource}', '${location}', '${assetName}')">${assetName}</a>`;
+                    imageAssetsList.appendChild(listItem);
+                }
+
+                imageAssetsList.style.display = "block"; // Show the image assets list
+            } else {
+                imageAssetsList.style.display = "none"; // Hide the image assets list if no assets found
+            }
+        }
+
+        // Function to show asset details when an image asset is clicked
+        function showAssetDetails(dataSource, location, assetName) {
+            const assetDetails = document.getElementById("asset-details");
+            const asset = imageAssets[dataSource][location][assetName];
+
+            // Create an <img> element to display the image
+            const imgElement = document.createElement("img");
+            imgElement.src = asset.overview;
+            imgElement.alt = assetName;
+
+            // Create a list to display details
+            const detailsList = document.createElement("ul");
+            detailsList.innerHTML = `<li>Overview: <img src="${asset.overview}" alt="${assetName}"></li>
+                                     <li>Thumbnail: <a href="${asset.thumbnail}" target="_blank">Thumbnail Image</a></li>
+                                     <li>TIFF: <a href="${asset.tiff}" target="_blank">Original TIFF</a></li>
+                                     <li>Metadata: <a href="${asset.metadata}" target="_blank">Metadata</a></li>`;
+
+            assetDetails.innerHTML = `<h2>${assetName}</h2>`;
+            assetDetails.appendChild(detailsList); // Append the details list to the asset details
+
+            assetDetails.style.display = "block"; // Show the asset details
+        }
+
+        // Sample data for data sources
+        const dataSources = ["Sentinel-2A data", "Sentinel-2B", "Landsat Data"];
+
+        // Function to populate the data sources list
+        populateDataSources();
+    </script>
+</body>
+</html>
